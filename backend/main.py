@@ -6,6 +6,9 @@ from fastapi.middleware.cors import CORSMiddleware
 import os
 
 from rag_engine import load_pdf_to_chroma, get_qa_chain
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_community.document_loaders import PyMuPDFLoader
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 app = FastAPI()
 
@@ -37,22 +40,35 @@ async def upload_pdf(file: UploadFile = File(...)):
 async def ask_question(payload: dict):
     question = payload["question"]
     chain = get_qa_chain()
-    answer = chain.run(question)
-    return {"answer": answer}
-
+    result = chain.invoke({"query": question})
+    return {"answer": result["result"]}
 
 # Endpoint to return structured summary from the document
 @app.get("/summarize")
-def summarize():
-    chain = get_qa_chain()
-    summary_prompt = (
-        "Please summarize the uploaded research paper with these sections:\n"
-        "- Title & Authors\n"
-        "- Abstract\n"
-        "- Problem Statement\n"
-        "- Methodology\n"
-        "- Key Results\n"
-        "- Conclusion"
-    )
-    answer = chain.run(summary_prompt)
-    return {"summary": answer}
+def summarize_pdf(filepath):
+    # Load and split the PDF
+    loader = PyMuPDFLoader(filepath)
+    documents = loader.load()
+    splitter = RecursiveCharacterTextSplitter(chunk_size=2000, chunk_overlap=300)
+    chunks = splitter.split_documents(documents)
+
+    # Concatenate content into one big string
+    full_text = "\n".join(chunk.page_content for chunk in chunks)
+
+    # Set up LLM
+    llm = ChatGoogleGenerativeAI(model="gemini-1.5-pro", google_api_key=os.getenv("GOOGLE_API_KEY"))
+
+    # Define better summarization prompt
+    prompt = f"""You are a research assistant. Summarize this research paper by extracting the following:
+    - Title
+    - Authors
+    - Abstract
+    - Research Problem
+    - Methodology
+    - Key Results
+    - Conclusion
+
+    Paper content:
+    {full_text[:15000]}"""  # Limit if needed
+
+    return llm.invoke(prompt)
