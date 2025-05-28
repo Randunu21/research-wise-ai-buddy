@@ -69,16 +69,32 @@ def summarize_pdf(filepath: str = Query(...)):
     llm = ChatGoogleGenerativeAI(model="gemini-1.5-pro", google_api_key=os.getenv("GOOGLE_API_KEY"))
 
     # Define better summarization prompt
-    prompt = f"""You are a research assistant. Extract and return each of the following fields as separate sections:
-    Title & Authors
-    Abstract
-    Problem Statement
-    Methodology
-    Key Results
-    Conclusion
+    prompt = f"""You are a research assistant. Analyze the research paper and return a summary in the following format. Make sure the output uses markdown-style headers like **Title**, **Authors**, etc. Extract only the most relevant content.
 
-    Paper content:
-    {full_text[:15000]}"""
+Format:
+**Title**
+<title of the paper>
+
+**Authors**
+<comma-separated list of authors>
+
+**Abstract**
+<abstract>
+
+**Problem Statement**
+<problem the paper addresses>
+
+**Methodology**
+<methods used in the research>
+
+**Key Results**
+<key findings>
+
+**Conclusion**
+<brief conclusion>
+
+Paper content:
+{full_text[:15000]}"""
 
     response = llm.invoke(prompt)
 
@@ -91,17 +107,13 @@ def summarize_pdf(filepath: str = Query(...)):
         match = re.search(pattern, text, re.IGNORECASE | re.DOTALL)
         return match.group(1).strip() if match else ""
 
-    # Extract and clean title & authors section
-    title_authors_section = extract_section("Title & Authors", content)
-    # Limit authors to lines before explanations start
-    authors_cleaned = title_authors_section.split("*Equal contribution.")[0].strip()
-    # Split on commas, strip footnotes and keep only names
+    title = extract_section("Title", content)
+    authors_raw = extract_section("Authors", content)
     authors = "\n".join([
-        name.strip(" *†‡") for name in authors_cleaned.split(", ")
+        name.strip(" *†‡") for name in authors_raw.split(", ")
         if any(char.isalpha() for char in name)
     ])
-    # Title: use static value as per instruction
-    title = "Attention Is All You Need"
+
     summary = {
         "title": title,
         "authors": authors,

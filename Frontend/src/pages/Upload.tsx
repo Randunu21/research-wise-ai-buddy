@@ -166,9 +166,6 @@ const UploadPage = () => {
             className="space-y-6 animate-fade-in"
             style={{ animationDelay: "0.4s" }}
           >
-            <pre className="bg-yellow-100 text-sm p-4 rounded">
-              {JSON.stringify(summary, null, 2)}
-            </pre>
             <h2 className="text-2xl font-bold text-gray-900 mb-6">
               Research Summary
             </h2>
