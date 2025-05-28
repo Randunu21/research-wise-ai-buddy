@@ -17,9 +17,6 @@ CHROMA_PATH = "db"
 def load_pdf_to_chroma(filepath):
     loader = PyMuPDFLoader(filepath)
     documents = loader.load()
-    
-    for i, doc in enumerate(documents[:3]):
-        print(f"\n----- Document {i} -----\n{doc.page_content[:1000]}")
 
     splitter = RecursiveCharacterTextSplitter(chunk_size=2000, chunk_overlap=300)
     chunks = splitter.split_documents(documents)

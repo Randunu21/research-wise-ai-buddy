@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Upload, FileText, Loader2 } from "lucide-react";
@@ -12,29 +11,40 @@ const UploadPage = () => {
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file && file.type === 'application/pdf') {
+    if (file && file.type === "application/pdf") {
       setSelectedFile(file);
     }
   };
 
   const handleUpload = async () => {
     if (!selectedFile) return;
-    
+
     setIsUploading(true);
-    
-    // Simulate API call - replace with actual backend integration
-    setTimeout(() => {
-      setSummary({
-        title: "Sample Research Paper",
-        authors: "Dr. John Smith, Dr. Jane Doe",
-        abstract: "This paper presents a novel approach to machine learning that combines traditional algorithms with modern deep learning techniques...",
-        problemStatement: "Current machine learning models face challenges in generalization and interpretability when dealing with complex, real-world datasets.",
-        methodology: "We employed a hybrid approach combining convolutional neural networks with ensemble methods, validated through cross-validation on multiple datasets.",
-        keyResults: "Our method achieved 95.3% accuracy on the test dataset, outperforming baseline models by 12.7% while maintaining computational efficiency.",
-        conclusion: "The proposed hybrid approach demonstrates significant improvements in both accuracy and interpretability, making it suitable for practical applications."
+
+    try {
+      const formData = new FormData();
+      formData.append("file", selectedFile);
+
+      // Upload file
+      const uploadResponse = await fetch("http://127.0.0.1:8000/upload", {
+        method: "POST",
+        body: formData,
       });
+      const uploadResult = await uploadResponse.json();
+
+      // Get summary
+      const summarizeResponse = await fetch(
+        `http://127.0.0.1:8000/summarize?filepath=${encodeURIComponent(
+          uploadResult.filepath
+        )}`
+      );
+      const summaryResult = await summarizeResponse.json();
+      setSummary(summaryResult);
+    } catch (error) {
+      console.error("Upload or summarization failed:", error);
+    } finally {
       setIsUploading(false);
-    }, 2000);
+    }
   };
 
   return (
@@ -43,14 +53,31 @@ const UploadPage = () => {
       <nav className="bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
+            <Link
+              to="/"
+              className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
+            >
               <FileText className="h-8 w-8 text-blue-600" />
-              <span className="text-xl font-bold text-gray-900">ResearchAI</span>
+              <span className="text-xl font-bold text-gray-900">
+                ResearchAI
+              </span>
             </Link>
             <div className="hidden md:flex space-x-6">
-              <Link to="/" className="text-gray-700 hover:text-blue-600 transition-colors duration-200 hover:scale-105 transform">Home</Link>
-              <Link to="/upload" className="text-blue-600 font-medium">Upload</Link>
-              <Link to="/chat" className="text-gray-700 hover:text-blue-600 transition-colors duration-200 hover:scale-105 transform">Chat</Link>
+              <Link
+                to="/"
+                className="text-gray-700 hover:text-blue-600 transition-colors duration-200 hover:scale-105 transform"
+              >
+                Home
+              </Link>
+              <Link to="/upload" className="text-blue-600 font-medium">
+                Upload
+              </Link>
+              <Link
+                to="/chat"
+                className="text-gray-700 hover:text-blue-600 transition-colors duration-200 hover:scale-105 transform"
+              >
+                Chat
+              </Link>
             </div>
           </div>
         </div>
@@ -58,14 +85,20 @@ const UploadPage = () => {
 
       <div className="max-w-4xl mx-auto px-4 py-12">
         <div className="text-center mb-8 animate-fade-in">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Upload & Analyze Your Research Paper</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">
+            Upload & Analyze Your Research Paper
+          </h1>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Upload your PDF research paper and get an AI-generated structured summary with key insights.
+            Upload your PDF research paper and get an AI-generated structured
+            summary with key insights.
           </p>
         </div>
 
         {/* Upload Section */}
-        <Card className="mb-8 hover:shadow-lg transition-all duration-300 animate-fade-in" style={{animationDelay: '0.2s'}}>
+        <Card
+          className="mb-8 hover:shadow-lg transition-all duration-300 animate-fade-in"
+          style={{ animationDelay: "0.2s" }}
+        >
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Upload className="h-5 w-5" />
@@ -87,21 +120,27 @@ const UploadPage = () => {
                     <Upload className="h-8 w-8 text-blue-600" />
                   </div>
                   <div>
-                    <p className="text-lg font-medium text-gray-900">Choose a PDF file</p>
+                    <p className="text-lg font-medium text-gray-900">
+                      Choose a PDF file
+                    </p>
                     <p className="text-gray-500">or drag and drop it here</p>
                   </div>
                 </div>
               </label>
             </div>
-            
+
             {selectedFile && (
               <div className="mt-4 p-4 bg-green-50 rounded-lg border border-green-200 animate-fade-in">
-                <p className="text-green-800 font-medium">Selected: {selectedFile.name}</p>
-                <p className="text-green-600 text-sm">Size: {(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                <p className="text-green-800 font-medium">
+                  Selected: {selectedFile.name}
+                </p>
+                <p className="text-green-600 text-sm">
+                  Size: {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                </p>
               </div>
             )}
 
-            <Button 
+            <Button
               onClick={handleUpload}
               disabled={!selectedFile || isUploading}
               className="w-full mt-4 bg-blue-600 hover:bg-blue-700 transition-all duration-200 hover:scale-105 transform disabled:hover:scale-100"
@@ -112,7 +151,7 @@ const UploadPage = () => {
                   Processing...
                 </>
               ) : (
-                'Generate Summary'
+                "Generate Summary"
               )}
             </Button>
           </CardContent>
@@ -120,16 +159,26 @@ const UploadPage = () => {
 
         {/* Summary Section */}
         {summary && (
-          <div className="space-y-6 animate-fade-in" style={{animationDelay: '0.4s'}}>
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Research Summary</h2>
-            
+          <div
+            className="space-y-6 animate-fade-in"
+            style={{ animationDelay: "0.4s" }}
+          >
+            <pre className="bg-yellow-100 text-sm p-4 rounded">
+              {JSON.stringify(summary, null, 2)}
+            </pre>
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">
+              Research Summary
+            </h2>
+
             <Card className="hover:shadow-lg transition-all duration-300">
               <CardHeader>
                 <CardTitle className="text-blue-600">Title & Authors</CardTitle>
               </CardHeader>
               <CardContent>
                 <h3 className="text-xl font-semibold mb-2">{summary.title}</h3>
-                <p className="text-gray-600">{summary.authors}</p>
+                <div className="text-gray-600 whitespace-pre-line">
+                  {summary.authors}
+                </div>
               </CardContent>
             </Card>
 
@@ -144,7 +193,9 @@ const UploadPage = () => {
 
             <Card className="hover:shadow-lg transition-all duration-300">
               <CardHeader>
-                <CardTitle className="text-purple-600">Problem Statement</CardTitle>
+                <CardTitle className="text-purple-600">
+                  Problem Statement
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-gray-700">{summary.problemStatement}</p>
