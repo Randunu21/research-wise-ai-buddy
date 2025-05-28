@@ -16,9 +16,9 @@ const Index = () => {
               <span className="text-xl font-bold text-gray-900">ResearchAI</span>
             </div>
             <div className="hidden md:flex space-x-6">
-              <Link to="/" className="text-gray-700 hover:text-blue-600 transition-colors">Home</Link>
-              <Link to="/upload" className="text-gray-700 hover:text-blue-600 transition-colors">Upload</Link>
-              <Link to="/chat" className="text-gray-700 hover:text-blue-600 transition-colors">Chat</Link>
+              <Link to="/" className="text-blue-600 font-medium">Home</Link>
+              <Link to="/upload" className="text-gray-700 hover:text-blue-600 transition-colors duration-200 hover:scale-105 transform">Upload</Link>
+              <Link to="/chat" className="text-gray-700 hover:text-blue-600 transition-colors duration-200 hover:scale-105 transform">Chat</Link>
             </div>
           </div>
         </div>
@@ -38,13 +38,13 @@ const Index = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in" style={{animationDelay: '0.4s'}}>
               <Link to="/upload">
-                <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all">
+                <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 transform">
                   <Upload className="mr-2 h-5 w-5" />
                   Get Started
                 </Button>
               </Link>
               <Link to="/chat">
-                <Button variant="outline" size="lg" className="px-8 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all">
+                <Button variant="outline" size="lg" className="px-8 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 transform">
                   <MessageCircle className="mr-2 h-5 w-5" />
                   Try Chat
                 </Button>
@@ -65,9 +65,9 @@ const Index = () => {
           </div>
           
           <div className="grid md:grid-cols-3 gap-8">
-            <Card className="hover:shadow-lg transition-shadow">
+            <Card className="hover:shadow-lg transition-all duration-300 hover:scale-105 transform animate-fade-in" style={{animationDelay: '0.1s'}}>
               <CardContent className="p-6 text-center">
-                <div className="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <div className="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 hover:bg-blue-200 transition-colors duration-200">
                   <Upload className="h-8 w-8 text-blue-600" />
                 </div>
                 <h3 className="text-xl font-semibold mb-2">Smart Upload</h3>
@@ -77,9 +77,9 @@ const Index = () => {
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-lg transition-shadow">
+            <Card className="hover:shadow-lg transition-all duration-300 hover:scale-105 transform animate-fade-in" style={{animationDelay: '0.2s'}}>
               <CardContent className="p-6 text-center">
-                <div className="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <div className="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 hover:bg-green-200 transition-colors duration-200">
                   <FileText className="h-8 w-8 text-green-600" />
                 </div>
                 <h3 className="text-xl font-semibold mb-2">Structured Summaries</h3>
@@ -89,9 +89,9 @@ const Index = () => {
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-lg transition-shadow">
+            <Card className="hover:shadow-lg transition-all duration-300 hover:scale-105 transform animate-fade-in" style={{animationDelay: '0.3s'}}>
               <CardContent className="p-6 text-center">
-                <div className="bg-purple-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <div className="bg-purple-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 hover:bg-purple-200 transition-colors duration-200">
                   <MessageCircle className="h-8 w-8 text-purple-600" />
                 </div>
                 <h3 className="text-xl font-semibold mb-2">Interactive Q&A</h3>
@@ -114,7 +114,7 @@ const Index = () => {
             Join researchers worldwide who are saving hours of time with AI-powered analysis
           </p>
           <Link to="/upload">
-            <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-50 px-8 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all">
+            <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-50 px-8 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 transform">
               <Zap className="mr-2 h-5 w-5" />
               Start Analyzing Now
             </Button>
