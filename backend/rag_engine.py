@@ -14,19 +14,19 @@ embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001", google_a
 
 CHROMA_PATH = "db"
 
-def load_pdf_to_chroma(filepath):
+def load_pdf_to_chroma(filepath, vector_path="db"):
     loader = PyMuPDFLoader(filepath)
     documents = loader.load()
 
     splitter = RecursiveCharacterTextSplitter(chunk_size=2000, chunk_overlap=300)
     chunks = splitter.split_documents(documents)
 
-    db = Chroma.from_documents(chunks, embedding=embeddings, persist_directory=CHROMA_PATH)
+    db = Chroma.from_documents(chunks, embedding=embeddings, persist_directory=vector_path)
     db.persist()
     return db
 
-def get_qa_chain():
-    db = Chroma(persist_directory=CHROMA_PATH, embedding_function=embeddings)
+def get_qa_chain(vector_path):
+    db = Chroma(persist_directory=vector_path, embedding_function=embeddings)
     retriever = db.as_retriever(search_kwargs={"k": 10})
     llm = ChatGoogleGenerativeAI(model="gemini-1.5-pro", google_api_key=GOOGLE_API_KEY)
     qa_chain = RetrievalQA.from_chain_type(llm=llm, retriever=retriever, return_source_documents=True)

@@ -40,6 +40,9 @@ const UploadPage = () => {
       );
       const summaryResult = await summarizeResponse.json();
       setSummary(summaryResult);
+      // Store both paths
+      localStorage.setItem("filepath", uploadResult.filepath);
+      localStorage.setItem("vectorPath", uploadResult.vector_path);
     } catch (error) {
       console.error("Upload or summarization failed:", error);
     } finally {

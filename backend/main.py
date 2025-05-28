@@ -32,16 +32,24 @@ async def upload_pdf(file: UploadFile = File(...)):
     with open(filepath, "wb") as f:
         f.write(await file.read())
 
-    load_pdf_to_chroma(filepath)
-    return {"message": "PDF indexed successfully.", "filepath": filepath}
+    vector_path = f"db/{file.filename}"
+    load_pdf_to_chroma(filepath, vector_path=vector_path)
 
+    return {
+        "message": "PDF indexed successfully.",
+        "filepath": filepath,           # For summarization
+        "vector_path": vector_path      # For QA
+    }
 
 
 # Endpoint to ask question using Gemini + retrieved chunks
 @app.post("/ask")
 async def ask_question(payload: dict):
     question = payload["question"]
-    chain = get_qa_chain()
+    filepath = payload.get("filepath")  # Get filepath from frontend
+    if not filepath:
+        return {"error": "No PDF filepath provided. Please upload a PDF first."}
+    chain = get_qa_chain(filepath)
     result = chain.invoke({"query": question})
     return {"answer": result["result"]}
 

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Send, Bot, User, FileText } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 interface Message {
   id: number;
@@ -14,6 +14,23 @@ interface Message {
 }
 
 const ChatPage = () => {
+  const location = useLocation();
+  // Removed filepath state, now using only vectorPath for backend communication
+
+  const [vectorPath, setVectorPath] = useState("");
+
+  useEffect(() => {
+    const stateVectorPath = location.state?.vectorPath;
+    const storedVectorPath = localStorage.getItem("vectorPath");
+
+    if (stateVectorPath) {
+      setVectorPath(stateVectorPath);
+      localStorage.setItem("vectorPath", stateVectorPath);
+    } else if (!vectorPath && storedVectorPath) {
+      setVectorPath(storedVectorPath);
+    }
+  }, [location]);
+
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 1,
@@ -26,6 +43,11 @@ const ChatPage = () => {
   const [isTyping, setIsTyping] = useState(false);
 
   const handleSendMessage = async () => {
+    if (!vectorPath) {
+      alert("Please upload a research paper first.");
+      return;
+    }
+
     if (!inputMessage.trim()) return;
 
     const userMessage: Message = {
@@ -44,6 +66,7 @@ const ChatPage = () => {
         "http://127.0.0.1:8000/ask",
         {
           question: inputMessage,
+          filepath: vectorPath,
         }
       );
 
