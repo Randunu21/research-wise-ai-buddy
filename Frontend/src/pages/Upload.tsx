@@ -75,12 +75,6 @@ const UploadPage = () => {
               <Link to="/upload" className="text-blue-600 font-medium">
                 Upload
               </Link>
-              <Link
-                to="/chat"
-                className="text-gray-700 hover:text-blue-600 transition-colors duration-200 hover:scale-105 transform"
-              >
-                Chat
-              </Link>
             </div>
           </div>
         </div>
