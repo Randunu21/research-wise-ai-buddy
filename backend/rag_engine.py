@@ -18,7 +18,7 @@ def load_pdf_to_chroma(filepath, vector_path="db"):
     loader = PyMuPDFLoader(filepath)
     documents = loader.load()
 
-    splitter = RecursiveCharacterTextSplitter(chunk_size=2000, chunk_overlap=300)
+    splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=200)
     chunks = splitter.split_documents(documents)
 
     db = Chroma.from_documents(chunks, embedding=embeddings, persist_directory=vector_path)
