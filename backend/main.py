@@ -30,6 +30,8 @@ async def upload_pdf(file: UploadFile = File(...)):
     load_pdf_to_chroma(filepath)
     return {"message": "PDF indexed successfully."}
 
+
+
 # Endpoint to ask question using Gemini + retrieved chunks
 @app.post("/ask")
 async def ask_question(payload: dict):
@@ -37,3 +39,20 @@ async def ask_question(payload: dict):
     chain = get_qa_chain()
     answer = chain.run(question)
     return {"answer": answer}
+
+
+# Endpoint to return structured summary from the document
+@app.get("/summarize")
+def summarize():
+    chain = get_qa_chain()
+    summary_prompt = (
+        "Please summarize the uploaded research paper with these sections:\n"
+        "- Title & Authors\n"
+        "- Abstract\n"
+        "- Problem Statement\n"
+        "- Methodology\n"
+        "- Key Results\n"
+        "- Conclusion"
+    )
+    answer = chain.run(summary_prompt)
+    return {"summary": answer}
