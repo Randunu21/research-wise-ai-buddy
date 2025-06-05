@@ -56,20 +56,33 @@ async def ask_question(payload: dict):
 # Endpoint to return structured summary from the document
 @app.get("/summarize")
 def summarize_pdf(filepath: str = Query(...)):
+    import re
+
     # Load and split the PDF
     loader = PyMuPDFLoader(filepath)
     documents = loader.load()
     splitter = RecursiveCharacterTextSplitter(chunk_size=2000, chunk_overlap=300)
     chunks = splitter.split_documents(documents)
-
-    # Concatenate content into one big string
     full_text = "\n".join(chunk.page_content for chunk in chunks)
 
     # Set up LLM
     llm = ChatGoogleGenerativeAI(model="gemini-1.5-pro", google_api_key=os.getenv("GOOGLE_API_KEY"))
 
-    # Define better summarization prompt
-    prompt = f"""You are a research assistant. Analyze the research paper and return a summary in the following format. Make sure the output uses markdown-style headers like **Title**, **Authors**, etc. Extract only the most relevant content.
+    # Break the full text into 15,000-character chunks
+    chunk_size = 15000
+    text_chunks = [full_text[i:i+chunk_size] for i in range(0, len(full_text), chunk_size)]
+
+    partial_summaries = []
+    for chunk in text_chunks:
+        chunk_prompt = f"""You are a research assistant. Analyze the research paper content below and generate a high-level structured summary in plain text.
+
+        Paper content:
+        {chunk}"""
+        chunk_response = llm.invoke(chunk_prompt)
+        partial_summaries.append(chunk_response.content)
+
+    combined_summary_input = "\n".join(partial_summaries)
+    final_prompt = f"""You are a research assistant. Analyze the following partial summaries of a research paper and generate a single structured summary in the following format. Use markdown-style headers like **Title**, **Authors**, etc. Extract only the most relevant content.
 
 Format:
 **Title**
@@ -93,14 +106,11 @@ Format:
 **Conclusion**
 <brief conclusion>
 
-Paper content:
-{full_text[:15000]}"""
-
-    response = llm.invoke(prompt)
-
-    import re
-
-    content = response.content
+Partial Summaries:
+{combined_summary_input}
+"""
+    final_response = llm.invoke(final_prompt)
+    content = final_response.content
 
     def extract_section(header, text):
         pattern = rf"\*\*{header}\*\*\s*\n*(.*?)(?=\n\*\*|\Z)"
